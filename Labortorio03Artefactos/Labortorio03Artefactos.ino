@@ -2,73 +2,73 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 
-#define i2c_Address 0x3C
-
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
-
-const int LM35 = A0;
-int lectura;
-float temperatura;
+#define OLED_ADDRESS 0x3C
 
 Adafruit_SH1106G display(
   SCREEN_WIDTH,
   SCREEN_HEIGHT,
   &Wire,
-  OLED_RESET);
+  OLED_RESET
+);
+
+const int TOUCH_PIN = 4;
+
+const int TOUCH2_PIN = 15;
+
+const int UMBRAL_TOUCH = 500;
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
+  Wire.begin(21, 22);
 
-  Wire.begin();
-
-
-
-  delay(250);
-
-
-  if (!display.begin(i2c_Address, true)) {
-    Serial.println("ERROR: OLED no encontrada");
-
-    while (1)
-      ;
+  if (!display.begin(OLED_ADDRESS, true)) {
+    Serial.println("Error al iniciar la pantalla OLED");
+    while (1);
   }
 
-  Serial.println("OLED funcionando correctamente");
-
-
   display.clearDisplay();
-
-
   display.setTextColor(SH110X_WHITE);
-  display.setTextSize(2);
-  display.setCursor(15, 10);
-
-  display.setTextSize(1);
-  display.setCursor(15, 40);
-
-
-  display.display();
 }
 
 void loop() {
 
-  lectura = analogRead(LM35);
-  temperatura = (lectura * (5.0 / 1024.0)) * 100.0;
+  int valorTouch = touchRead(TOUCH_PIN);
+  int valorTouch2 = touchRead(TOUCH2_PIN);
 
   display.clearDisplay();
 
-  display.setTextColor(SH110X_WHITE);
-  display.setTextSize(2);
-  display.setCursor(10, 25);
+  display.setTextSize(1);
+  display.setCursor(26, 5);
+  display.println("ESP32 TOUCH");
 
-  display.print(temperatura);
-  display.println(" C");
+  if (valorTouch < UMBRAL_TOUCH) {
+
+    display.setCursor(15, 28);
+    display.println("Toque detectado en boton 1");
+
+    display.fillCircle(105, 52, 5, SH110X_WHITE);
+  }
+  if (valorTouch2 < UMBRAL_TOUCH){
+    display.setCursor(15, 28);
+    display.println("Toque detectado en boton 2");
+
+    display.fillCircle(105, 52, 5, SH110X_WHITE);
+  }
+
+  else {
+
+    display.setCursor(32, 28);
+    display.println("No hay toque");
+
+    display.fillCircle(20, 52, 5, SH110X_WHITE);
+  }
 
   display.display();
 
-  delay(2000);
+  delay(100);
 }
