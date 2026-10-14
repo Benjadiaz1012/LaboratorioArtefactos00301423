@@ -1,40 +1,35 @@
-#define TRIG_PIN 18
-#define ECHO_PIN 19
+// C++ code
+//
+int TRIG = 5; //salida 
+int ECHO = 4; //entrada
+float h = 3.0; //altura del recipiente
+long t = 0;
+float distancia, nivel =0;
 
-void setup() {
-
-  Serial.begin(115200);
-
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-
+void setup()
+{
+  pinMode(TRIG, OUTPUT);
+  pinMode (ECHO, INPUT);
+  Serial.begin(9600);
+  
 }
 
-void loop() {
-
-  digitalWrite(TRIG_PIN, LOW);
+void loop()
+{
+ //asegurar que trig está apagado
+  digitalWrite(TRIG, LOW);
   delayMicroseconds(2);
-
-  digitalWrite(TRIG_PIN, HIGH);
+ //hacer funcionar trig
+  digitalWrite(TRIG, HIGH);
   delayMicroseconds(10);
-
-  digitalWrite(TRIG_PIN, LOW);
-
-  long duracion = pulseIn(ECHO_PIN, HIGH);
-
-  if (!duracion) {
-
-    Serial.println("No se detectó eco");
-
-  } else {
-
-    float distancia = (0.034 * duracion) / 2;
-
-    Serial.print("Distancia: ");
-    Serial.print(distancia);
-    Serial.println(" cm");
-
-  }
-
-  delay(500);
+  digitalWrite(TRIG, LOW);
+  //guardar valor de echo 
+  t = pulseIn(ECHO, HIGH); //microsegundos
+  distancia=(0.000344*t)/2; //d= v*t --> 
+  nivel = (h-distancia);
+  Serial.print("distancia: ");
+  Serial.println(distancia);
+  Serial.print("nivel: ");
+  Serial.println(nivel);
+  delay(1500);
 }
